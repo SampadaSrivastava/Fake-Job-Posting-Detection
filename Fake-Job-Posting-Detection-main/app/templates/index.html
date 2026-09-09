@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>JobGuard AI | Fake Job Detection</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+
+        <div class="logo">
+            <div class="logo-icon">JG</div>
+
+            <div>
+                <h2>JobGuard AI</h2>
+                <span>Fraud Detection System</span>
+            </div>
+        </div>
+
+        <div class="nav-status">
+            <span class="status-dot"></span>
+            ML Model Ready
+        </div>
+
+    </nav>
+
+
+    <!-- Hero Section -->
+    <main>
+
+        <section class="hero">
+
+            <div class="badge">
+                <span>✦</span>
+                AI-Powered Job Verification
+            </div>
+
+            <h1>
+                Is This Job
+                <span>Real or Fake?</span>
+            </h1>
+
+            <p class="hero-description">
+                Analyze job postings using machine learning and NLP
+                to identify potentially fraudulent opportunities.
+            </p>
+
+        </section>
+
+
+        <!-- Main Analyzer -->
+        <section class="analyzer-card">
+
+            <div class="card-header">
+
+                <div>
+                    <h2>Analyze Job Posting</h2>
+
+                    <p>
+                        Paste the complete job description below for analysis.
+                    </p>
+                </div>
+
+                <div class="ai-icon">
+                    ✦
+                </div>
+
+            </div>
+
+
+            <form method="POST" id="predictionForm">
+
+                <label for="job_description">
+                    Job Description
+                </label>
+
+                <textarea id="job_description" name="job_description"
+                    placeholder="Paste the job title, company details, requirements, salary, benefits, responsibilities and other information here..."
+                    required>{{ request.form.get('job_description', '') }}</textarea>
+
+
+                <div class="input-footer">
+
+                    <span id="characterCount">
+                        0 characters
+                    </span>
+
+                    <button type="button" class="clear-btn" onclick="clearText()">
+                        Clear
+                    </button>
+
+                </div>
+
+
+                <button type="submit" class="analyze-btn" id="analyzeBtn">
+
+                    <span class="button-icon">✦</span>
+
+                    <span id="buttonText">
+                        Analyze Job Posting
+                    </span>
+
+                </button>
+
+            </form>
+
+
+            {% if prediction %}
+
+            <div class="result-card {{ prediction.type }}">
+
+                <div class="result-icon">
+
+                    {% if prediction.type == "fraudulent" %}
+                    !
+                    {% elif prediction.type == "legitimate" %}
+                    ✓
+                    {% else %}
+                    !
+                    {% endif %}
+
+                </div>
+
+                <div class="result-content">
+
+                    <span class="result-label">
+                        AI ANALYSIS RESULT
+                    </span>
+
+                    <h2>
+                        {{ prediction.label }}
+                    </h2>
+
+                    {% if risk_level %}
+
+                    <div class="risk-level">
+
+                        <strong>Risk Level:</strong>
+
+                        <span>
+                            {{ risk_level }}
+                        </span>
+
+                    </div>
+
+                    {% endif %}
+
+                    <p class="result-message">
+                        {{ prediction.message }}
+                    </p>
+
+                    {% if prediction.recommendation %}
+
+                    <div class="recommendation">
+
+                        <strong>Recommendation</strong>
+
+                        <p>
+                            {{ prediction.recommendation }}
+                        </p>
+
+                    </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+            {% endif %}
+
+        </section>
+
+
+        <!-- Information Cards -->
+        <section class="features">
+
+            <div class="feature-card">
+
+                <div class="feature-icon">
+                    NLP
+                </div>
+
+                <h3>Natural Language Processing</h3>
+
+                <p>
+                    Job descriptions are converted into meaningful
+                    numerical features using TF-IDF.
+                </p>
+
+            </div>
+
+
+            <div class="feature-card">
+
+                <div class="feature-icon">
+                    ML
+                </div>
+
+                <h3>Machine Learning</h3>
+
+                <p>
+                    Classification algorithms analyze patterns
+                    learned from real-world job postings.
+                </p>
+
+            </div>
+
+
+            <div class="feature-card">
+
+                <div class="feature-icon">
+                    ✓
+                </div>
+
+                <h3>Fraud Detection</h3>
+
+                <p>
+                    Identify potentially suspicious job postings
+                    before applying or sharing personal information.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- Warning -->
+        <section class="notice">
+
+            <div class="notice-icon">
+                ⚠
+            </div>
+
+            <div>
+                <h3>Important Notice</h3>
+
+                <p>
+                    This system provides a machine-learning prediction
+                    and should not be considered a definitive determination
+                    of whether a job posting is fraudulent.
+                </p>
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- Footer -->
+    <footer>
+
+        <p>
+            JobGuard AI
+            <span>•</span>
+            Fake Job Posting Detection
+        </p>
+
+        <p class="footer-small">
+            Machine Learning & NLP Internship Project
+        </p>
+
+    </footer>
+
+
+    <script>
+
+        const textarea =
+            document.getElementById("job_description");
+
+        const counter =
+            document.getElementById("characterCount");
+
+        const form =
+            document.getElementById("predictionForm");
+
+        const button =
+            document.getElementById("analyzeBtn");
+
+        const buttonText =
+            document.getElementById("buttonText");
+
+        function updateCharacterCount() {
+
+            const count = textarea.value.length;
+
+            counter.textContent =
+                count + (count === 1 ? " character" : " characters");
+        }
+
+
+        textarea.addEventListener("input", updateCharacterCount);
+
+
+        // Update counter when page loads
+        updateCharacterCount();
+
+
+        form.addEventListener("submit", function () {
+
+            button.disabled = true;
+
+            buttonText.textContent =
+                "Analyzing...";
+
+        });
+
+
+        function clearText() {
+
+            textarea.value = "";
+
+            counter.textContent =
+                "0 characters";
+
+            textarea.focus();
+
+        }
+
+    </script>
+
+</body>
+
+</html>
